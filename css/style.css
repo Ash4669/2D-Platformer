@@ -1,0 +1,36 @@
+body {
+  background-color: gainsboro;
+  padding: 40px;
+}
+
+#playerSprite {
+  height: 55px;
+  width: 30px;
+  background-color: lightblue;
+  position: absolute;
+  left: 10px;
+  top: 415px;
+}
+
+#container {
+  height: 500px;
+  width: 800px;
+  background-color: black;
+  border: 2px solid white;
+  position: relative;
+  margin: 5.5% auto;
+}
+
+.floor {
+  height: 30px;
+  width: 100%;
+  background-color: red;
+  position: absolute;
+  top: 470px;
+}
+
+.heading {
+  font-size: 50px;
+  text-align: center;
+  font-weight: 400;
+}
