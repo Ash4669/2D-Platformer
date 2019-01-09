@@ -23,12 +23,16 @@ $(document).ready(function(){
 
   //Initialising level
 
+  // Appending step divs onto container
   for (var i = 1; i <= 10; i++) {
-    container.append("<div id='step" + i + "'></div>");
-    $("#step" + i).addClass("steps");
+    container.append("<div id='step" + i + "' class='steps'></div>");
   }
 
+  // First enemy
+  container.append("<div id='enemy1' class='bats'></div>");
+
   // Level styling
+  // Styling steps
 
   $(".steps").css({
     "position": "absolute",
@@ -79,8 +83,8 @@ $(document).ready(function(){
 
   $("#step7").css({
     "left": "380px",
-    "top": "120px",
-    "height": "60px",
+    "top": "100px",
+    "height": "80px",
     "width": "20px",
   });
 
@@ -105,10 +109,262 @@ $(document).ready(function(){
     "width": "80px",
   });
 
-
+  // Player
   var playerWidth = parseInt(playerSprite.css("width"));
   var playerHeight = parseInt(playerSprite.css("height"));
+  var playerHealth = 6;
 
+  // Health hearts
+  var heart1 = $("#heart1");
+  var heart2 = $("#heart2");
+  var heart3 = $("#heart3");
+
+  function healthBar() {
+    if (playerHealth == 0) {
+      heart1.attr("src","images/heart-empty.png");
+      heart2.attr("src","images/heart-empty.png");
+      heart3.attr("src","images/heart-empty.png");
+      displayGameOver(playerSpriteY);
+    }
+
+    if (playerHealth == 1) {
+      heart1.attr("src","images/heart-half.png");
+      heart2.attr("src","images/heart-empty.png");
+      heart3.attr("src","images/heart-empty.png");
+    }
+    if (playerHealth == 2) {
+      heart1.attr("src","images/heart.png");
+      heart2.attr("src","images/heart-empty.png");
+      heart3.attr("src","images/heart-empty.png");
+    }
+    if (playerHealth == 3) {
+      heart1.attr("src","images/heart.png");
+      heart2.attr("src","images/heart-half.png");
+      heart3.attr("src","images/heart-empty.png");
+    }
+    if (playerHealth == 4) {
+      heart1.attr("src","images/heart.png");
+      heart2.attr("src","images/heart.png");
+      heart3.attr("src","images/heart-empty.png");
+    }
+    if (playerHealth == 5) {
+      heart1.attr("src","images/heart.png");
+      heart2.attr("src","images/heart.png");
+      heart3.attr("src","images/heart-half.png");
+    }
+    if (playerHealth == 6) {
+      heart1.attr("src","images/heart.png");
+      heart2.attr("src","images/heart.png");
+      heart3.attr("src","images/heart.png");
+    }
+  }
+
+ var opac = 0;
+
+  function displayGameOver(initialY) {
+    clearInterval(interval);
+    clearInterval(firstEnemy);
+
+    setInterval(function () {
+
+      if (playerSpriteY == initialY) {
+        playerSpriteYVelocity = -10;
+        container.append("<div id='gameOver'></div>");
+        $("#gameOver").append("<div id='gameOverText'>Game Over</div>");
+
+      }
+
+      playerSpriteYVelocity += .57;
+      playerSpriteY += playerSpriteYVelocity;
+
+      movePlayer();
+
+      if (playerSpriteY > initialY + 1000) {
+        $("#gameOver").css({
+          "position": "absolute",
+          "display": "flex",
+          "justify-content": "center",
+          "align-items": "center",
+          "height": "100%",
+          "width": "100%",
+          "background-color": "black",
+          "opacity": opac,
+        });
+        $("#gameOverText").css({
+          "color": "white",
+          "font-size": "86px",
+          "font-family": "fantasy",
+          "opacity": opac,
+        });
+        opac += 0.01;
+      }
+    }, 10);
+
+  }
+
+  // Enemies
+  $("#enemy1").css({
+    "left": "670px",
+    "top": "120px",
+    "height": "20px",
+    "width": "20px",
+  });
+  var enemy1 = $("#enemy1");
+
+  var enemyXDirection = "-";
+  var enemyYDirection = "+";
+
+  var enemy1Object = {
+    place: $("#enemy1"),
+    bounding_divs: [$("#step7"),$("#step9")],
+    X: parseInt(enemy1.css("left")),
+    Y: parseInt(enemy1.css("top")),
+    XDirection: "-",
+    YDirection: "+",
+  }
+
+  var enemyTopOriginal = parseInt(enemy1Object.place.css("top"));
+  var enemyTop;
+  var enemyBottom;
+  var enemyLeft;
+  var enemyRight;
+  var enemyWidth = parseInt(enemy1Object.place.css("width"));
+  var enemyHeight = parseInt(enemy1Object.place.css("height"));
+
+  function findEnemy(enemyObject) {
+    enemyTop = parseInt(enemyObject.place.css("top"));
+    enemyBottom = enemyTop + parseInt(enemyObject.place.css("height"));
+    enemyLeft = parseInt(enemyObject.place.css("left"));
+    enemyRight = enemyLeft + parseInt(enemyObject.place.css("width"));
+  }
+
+  function moveEnemy(enemyObject) {
+    enemyObject.place.css({
+      "top": enemyObject.Y + "px",
+      "left": enemyObject.X + "px",
+    })
+  }
+
+  // bats
+  $(".bats").css({
+    "position": "absolute",
+    "background-color": "red",
+  })
+
+  function batMotion(enemyObject){
+
+    findEnemy(enemyObject);
+
+    if (enemyLeft < parseInt(enemyObject.bounding_divs[0].css("left")) + parseInt($("#step7").css("width")) + 20) {
+      enemyObject.XDirection = "+";
+    }
+    if (enemyRight > parseInt(enemyObject.bounding_divs[1].css("left")) - 20) {
+      enemyObject.XDirection = "-";
+    }
+
+    if (enemyObject.XDirection == "+") {
+      enemyObject.X += 1;
+    } else {
+      enemyObject.X -= 1;
+    }
+
+    if (enemyTop > enemyTopOriginal + 15) {
+      enemyObject.YDirection = "-";
+    }
+    if (enemyTop < enemyTopOriginal - 15) {
+      enemyObject.YDirection = "+";
+    }
+
+    if (enemyObject.YDirection == "+") {
+      enemyObject.Y += 0.45;
+    } else {
+      enemyObject.Y -= 0.45;
+    }
+
+    moveEnemy(enemyObject);
+  }
+
+  var zombiespeed = 0;
+  var zombieVelocity = 0;
+  var zombieLeftVelocity = 0;
+
+  function zombieMotion(enemyObject){
+
+    findEnemy(enemyObject);
+
+    if (enemyLeft < parseInt(enemyObject.bounding_divs[0].css("left")) + parseInt($("#step7").css("width")) + 20) {
+      enemyObject.XDirection = "+";
+    }
+    if (enemyRight > parseInt(enemyObject.bounding_divs[1].css("left")) - 20) {
+      enemyObject.XDirection = "-";
+    }
+
+    if (enemyObject.XDirection == "+") {
+
+      if (Math.abs(zombieLeftVelocity) < 0.1) {
+        zombieLeftVelocity = +5.5;
+      }
+
+      if (Math.abs(zombieLeftVelocity) > 0.1) {
+
+        zombieLeftVelocity -= 0.5;
+
+        if (Math.abs(zombieLeftVelocity) < 1) {
+          zombieLeftVelocity += 0.4;
+        }
+      }
+      enemyObject.X += zombieLeftVelocity;
+      moveEnemy(enemyObject);
+    }
+    if (enemyObject.XDirection == "-") {
+
+      if (Math.abs(zombieVelocity) < 0.1) {
+        zombieVelocity = -5.5;
+      }
+
+      if (Math.abs(zombieVelocity) > 0.1) {
+
+        zombieVelocity += 0.5;
+
+        if (Math.abs(zombieVelocity) < 1) {
+          zombieVelocity -= 0.4;
+        }
+      }
+      enemyObject.X += zombieVelocity;
+      moveEnemy(enemyObject);
+    }
+  }
+
+  function enemycollisions() {
+
+    // Collision with left of enemy
+    if (playerSpriteX + playerWidth > enemyLeft
+      && playerSpriteX + playerWidth < enemyLeft + enemyWidth/2
+      && playerSpriteY + playerHeight > enemyTop
+      && playerSpriteY < enemyBottom
+    ) {
+      playerSpriteXVelocity = -5;
+      playerSpriteYVelocity = -4;
+      playerSpriteX = enemyLeft - playerWidth;
+      playerHealth--;
+      healthBar();
+    }
+
+    // Collision with right of enemy
+    if (playerSpriteX < enemyRight
+      && playerSpriteX > enemyRight - enemyWidth
+      && playerSpriteY + playerHeight> enemyTop
+      && playerSpriteY < enemyBottom
+    ) {
+      playerSpriteXVelocity = +5;
+      playerSpriteYVelocity = -4;
+      playerSpriteX = enemyRight;
+      playerHealth--;
+      healthBar();
+    }
+  }
+
+  // Step document positions array
   var arrayStep = [[],[],[],[]];
   for (var i = 0; i < 10; i++) {
 
@@ -127,7 +383,8 @@ $(document).ready(function(){
        paused = false;
        console.log("Paused");
 
-       clearInterval(interval)
+       clearInterval(interval);
+       clearInterval(firstEnemy);
 
        // Display pause menu
 
@@ -139,6 +396,17 @@ $(document).ready(function(){
        // Load game frame-wise
        interval = setInterval(loop, 10);
 
+       var enemyType = "zombie";
+
+       if (enemyType == "bat") {
+         firstEnemy = setInterval(function(){batMotion(enemy1Object)},10);
+
+       }
+
+       if (enemyType == "zombie") {
+         firstEnemy = setInterval(function(){zombieMotion(enemy1Object)},100);
+
+       }
      }
    })
 
@@ -205,6 +473,8 @@ $(document).ready(function(){
        stepBlockCheck(i);
      }
 
+     enemycollisions();
+
      movePlayer();
 
    }
@@ -243,11 +513,13 @@ $(document).ready(function(){
 
   function stepBlockCheck(i){
 
+    // Finding the step edges
     stepTop = arrayStep[0][i];
     stepBottom = arrayStep[1][i];
     stepLeft = arrayStep[2][i];
     stepRight = arrayStep[3][i];
 
+    // Collision with left of step
     if (playerSpriteX + playerWidth > stepLeft
       && playerSpriteX + playerWidth < stepLeft + 5
       && playerSpriteY + playerHeight > stepTop
@@ -257,6 +529,7 @@ $(document).ready(function(){
       playerSpriteX = stepLeft - playerWidth;
     }
 
+    // Collision with right of step
     if (playerSpriteX < stepRight
       && playerSpriteX > stepRight - 5
       && playerSpriteY + playerHeight> stepTop
@@ -266,6 +539,7 @@ $(document).ready(function(){
       playerSpriteX = stepRight;
     }
 
+    // Collision with bottom of step
     if (playerSpriteY < stepBottom
       && playerSpriteY > stepBottom - 15
       && playerSpriteX + playerWidth > stepLeft
@@ -274,6 +548,7 @@ $(document).ready(function(){
         playerSpriteY = stepBottom;
       }
 
+    // Collision with top of step
       if (playerSpriteY + playerHeight > stepTop -1
         && playerSpriteY + playerHeight < stepTop + 15
         && playerSpriteX < stepRight
@@ -288,5 +563,6 @@ $(document).ready(function(){
 
   document.addEventListener('keydown', keyListener);
   document.addEventListener('keyup', keyListener);
+
 
 });

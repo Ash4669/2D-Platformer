@@ -34,3 +34,27 @@ body {
   text-align: center;
   font-weight: 400;
 }
+
+#heart1 {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  height: 50px;
+  width: 50px;
+}
+
+#heart2 {
+  position: absolute;
+  left: 50px;
+  top: 0px;
+  height: 50px;
+  width: 50px;
+}
+
+#heart3 {
+  position: absolute;
+  left: 100px;
+  top: 0px;
+  height: 50px;
+  width: 50px;
+}
