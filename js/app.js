@@ -184,7 +184,7 @@ $(document).ready(function(){
       if (playerSpriteY == initialY) {
         playerSpriteYVelocity = -10;
         container.append("<div id='gameOver'></div>");
-        $("#gameOver").append("<div id='gameOverText'>Game Over</div>");
+        $("#gameOver").append("<div id='gameOverText'>YOU DIED</div>");
 
       }
 
@@ -206,10 +206,11 @@ $(document).ready(function(){
         });
 
         $("#gameOverText").css({
-          "color": "white",
-          "font-size": "86px",
-          "font-family": "fantasy",
+          "color": "red",
+          "font-size": "69px",
+          "font-family": "Times New Roman",
           "opacity": opac,
+
         });
 
         opac += 0.01;
