@@ -21,6 +21,9 @@ $(document).ready(function(){
   var playerSpriteUp = false;
   var playerSpriteJump = true;
 
+  var playerSpriteSpace = false;
+  var playerSpriteAttack = true;
+
   //Initialising level
 
   // Appending step divs onto container
@@ -109,6 +112,17 @@ $(document).ready(function(){
     "width": "80px",
   });
 
+  // Step document positions array
+  var arrayStep = [[],[],[],[]];
+  for (var i = 0; i < 10; i++) {
+
+    var step = $("#step" + (i+1).toString())
+    arrayStep[0].push( parseInt(step.css("top")) );
+    arrayStep[1].push( parseInt(step.css("top")) + parseInt(step.css("Height")) );
+    arrayStep[2].push( parseInt(step.css("left")) );
+    arrayStep[3].push( parseInt(step.css("left")) + parseInt(step.css("width"))) ;
+  }
+
   // Player
   var playerWidth = parseInt(playerSprite.css("width"));
   var playerHeight = parseInt(playerSprite.css("height"));
@@ -190,15 +204,58 @@ $(document).ready(function(){
           "background-color": "black",
           "opacity": opac,
         });
+
         $("#gameOverText").css({
           "color": "white",
           "font-size": "86px",
           "font-family": "fantasy",
           "opacity": opac,
         });
+
         opac += 0.01;
       }
     }, 10);
+
+  }
+
+  var rotation = 45;
+  function playerAttack() {
+
+    container.append("<div id='swordAttack'></div>");
+
+    $("#swordAttack").css({
+      "position": "absolute",
+      "height": "30px",
+      "width": "8px",
+      "top": playerSpriteY + playerHeight/4 - 10 + "px",
+      "left": playerSpriteX + playerWidth - 5 + "px",
+      "background-color": "blue",
+      "transform": "rotate(45deg)",
+      "transform-origin": "50% 90%",
+    });
+
+
+    attack = setInterval(function(){
+
+      $("#swordAttack").css({
+        "transform": "rotate("+ rotation + "deg)",
+        "top": playerSpriteY  + "px",
+        "left": playerSpriteX + playerWidth - 5 + "px",
+      })
+      rotation++;
+      playerSpriteAttack = false;
+
+      if (rotation == 135) {
+        clearInterval(attack)
+        $("#swordAttack").remove()
+        rotation = 45;
+        playerSpriteAttack = true;
+
+
+      }
+    },1)
+
+
 
   }
 
@@ -364,17 +421,6 @@ $(document).ready(function(){
     }
   }
 
-  // Step document positions array
-  var arrayStep = [[],[],[],[]];
-  for (var i = 0; i < 10; i++) {
-
-    var step = $("#step" + (i+1).toString())
-    arrayStep[0].push( parseInt(step.css("top")) );
-    arrayStep[1].push( parseInt(step.css("top")) + parseInt(step.css("Height")) );
-    arrayStep[2].push( parseInt(step.css("left")) );
-    arrayStep[3].push( parseInt(step.css("left")) + parseInt(step.css("width"))) ;
-  }
-
   // Game
    container.click(function(){
      if (paused) {
@@ -396,7 +442,7 @@ $(document).ready(function(){
        // Load game frame-wise
        interval = setInterval(loop, 10);
 
-       var enemyType = "zombie";
+       var enemyType = "bat";
 
        if (enemyType == "bat") {
          firstEnemy = setInterval(function(){batMotion(enemy1Object)},10);
@@ -431,6 +477,13 @@ $(document).ready(function(){
        case 39:
        playerSpriteRight = keyState;
        break;
+
+       // Space key
+       case 32:
+       playerSpriteSpace = keyState;
+       break
+
+
      }
    }
 
@@ -476,6 +529,14 @@ $(document).ready(function(){
      enemycollisions();
 
      movePlayer();
+
+     if (playerSpriteSpace && playerSpriteAttack) {
+
+       playerAttack();
+
+
+
+     }
 
    }
 
