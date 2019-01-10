@@ -24,6 +24,8 @@ $(document).ready(function(){
   var playerSpriteSpace = false;
   var playerSpriteAttack = true;
 
+  var lastFacingLeft = false;
+
   //Initialising level
 
   // Appending step divs onto container
@@ -191,9 +193,13 @@ $(document).ready(function(){
       playerSpriteYVelocity += .57;
       playerSpriteY += playerSpriteYVelocity;
 
+      if (playerSpriteY > 2000) {
+        playerSprite.remove()
+      }
+
       movePlayer();
 
-      if (playerSpriteY > initialY + 1000) {
+      if (playerSpriteY > initialY + 1000 ) {
         $("#gameOver").css({
           "position": "absolute",
           "display": "flex",
@@ -219,45 +225,111 @@ $(document).ready(function(){
 
   }
 
+  var weaponLeft;
+  var weaponRight;
+
   var rotation = 45;
   function playerAttack() {
 
-    container.append("<div id='swordAttack'></div>");
-
-    $("#swordAttack").css({
-      "position": "absolute",
-      "height": "30px",
-      "width": "8px",
-      "top": playerSpriteY + playerHeight/4 - 10 + "px",
-      "left": playerSpriteX + playerWidth - 5 + "px",
-      "background-color": "blue",
-      "transform": "rotate(45deg)",
-      "transform-origin": "50% 90%",
-    });
-
-
-    attack = setInterval(function(){
-
-      $("#swordAttack").css({
-        "transform": "rotate("+ rotation + "deg)",
-        "top": playerSpriteY  + "px",
+    if (lastFacingLeft == false) {
+      container.append("<div id='swordAttackRight'></div>");
+      $("#swordAttackRight").css({
+        "position": "absolute",
+        "height": "30px",
+        "width": "8px",
+        "top": playerSpriteY + "px",
         "left": playerSpriteX + playerWidth - 5 + "px",
-      })
-      rotation++;
-      playerSpriteAttack = false;
+        "background-color": "blue",
+        "transform": "rotate(45deg)",
+        "transform-origin": "50% 90%",
+      });
 
-      if (rotation == 135) {
-        clearInterval(attack)
-        $("#swordAttack").remove()
+      // correction if they were facing the other direction (rotation is set to the other side)
+      if (rotation < 0) {
         rotation = 45;
-        playerSpriteAttack = true;
-
-
       }
-    },1)
+
+      attack = setInterval(function(){
+
+        $("#swordAttackRight").css({
+          "transform": "rotate("+ rotation + "deg)",
+          "top": playerSpriteY + "px",
+          "left": playerSpriteX + playerWidth - 5 + "px",
+        })
+
+        // finding weapon edges for collision
+        findWeapon($("#swordAttackRight"));
 
 
+        rotation+=2;
+        playerSpriteAttack = false;
 
+        if (rotation == 135) {
+          clearInterval(attack);
+          $("#swordAttackRight").remove();
+          playerSpriteAttack = true;
+          rotation = 45;
+
+          resetWeapon($("#swordAttackRight"));
+
+        }
+      },1);
+    }
+
+    if (lastFacingLeft == true) {
+      container.append("<div id='swordAttackLeft'></div>");
+
+      $("#swordAttackLeft").css({
+        "position": "absolute",
+        "height": "30px",
+        "width": "8px",
+        "top": playerSpriteY + "px",
+        "left": playerSpriteX + "px",
+        "background-color": "blue",
+        "transform": "rotate(-45deg)",
+        "transform-origin": "50% 90%",
+      });
+
+      // correction if they were facing the other direction (rotation is set to the other side)
+      if (rotation > 0) {
+        rotation = -45;
+      }
+
+      attack = setInterval(function(){
+
+        $("#swordAttackLeft").css({
+          "transform": "rotate("+ rotation + "deg)",
+          "top": playerSpriteY + "px",
+          "left": playerSpriteX -1.5 + "px",
+        })
+
+        rotation-=2;
+        playerSpriteAttack = false;
+
+        // finding weapon edges for collision
+        findWeapon($("#swordAttackLeft"));
+
+        if (rotation == -135) {
+          $("#swordAttackLeft").remove();
+          clearInterval(attack);
+          playerSpriteAttack = true;
+          rotation = -45;
+          resetWeapon($("#swordAttackLeft"));
+
+        }
+      },1);
+    }
+
+  }
+
+  function findWeapon(weaponPlace) {
+    weaponLeft = playerSpriteX - 27.5;
+    weaponRight = playerSpriteX + playerWidth + 27.5;
+  }
+
+  function resetWeapon(weaponPlace) {
+    weaponLeft = 0;
+    weaponRight = 0;
   }
 
   // Enemies
@@ -420,6 +492,49 @@ $(document).ready(function(){
       playerHealth--;
       healthBar();
     }
+
+    // Collision with left of enemy
+    if ( weaponRight > enemyLeft
+      && weaponRight < enemyRight
+      && playerSpriteY + playerHeight > enemyTop
+      && playerSpriteY < enemyBottom
+    ) {
+      // Stops enemy movement
+      clearInterval(firstEnemy);
+
+      // Rewrites enemy position for collision if statement
+      $("#enemy1").css({
+        "left": "0px",
+        "top": "0px",
+      });
+      findEnemy(enemy1Object);
+
+      // Removes enemy
+      $("#enemy1").remove();
+
+    }
+
+    // Collision with right of enemy
+    if (weaponLeft < enemyRight
+      &&  weaponLeft > enemyLeft
+      && playerSpriteY + playerHeight > enemyTop
+      && playerSpriteY < enemyBottom
+    ) {
+
+      // Stops enemy movement
+      clearInterval(firstEnemy);
+
+      // Rewrites enemy position for collision if statement
+      $("#enemy1").css({
+        "left": "0px",
+        "top": "0px",
+      });
+      findEnemy(enemy1Object);
+
+      // Removes enemy
+      $("#enemy1").remove();
+    }
+
   }
 
   // Game
@@ -467,9 +582,10 @@ $(document).ready(function(){
        // Left key
        case 37:
        playerSpriteLeft = keyState;
+       lastFacingLeft = true;
+       break;
 
        // Up key
-       break;
        case 38:
        playerSpriteUp = keyState;
        break;
@@ -477,6 +593,7 @@ $(document).ready(function(){
        // Right key
        case 39:
        playerSpriteRight = keyState;
+       lastFacingLeft = false;
        break;
 
        // Space key
@@ -506,7 +623,6 @@ $(document).ready(function(){
      if (playerSpriteRight) {
 
        playerSpriteXVelocity += 0.4;
-
      }
 
      playerSpriteYVelocity += .4;
@@ -534,8 +650,6 @@ $(document).ready(function(){
      if (playerSpriteSpace && playerSpriteAttack) {
 
        playerAttack();
-
-
 
      }
 
