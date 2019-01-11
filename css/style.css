@@ -5,20 +5,23 @@ body {
 
 #playerSprite {
   height: 55px;
-  width: 30px;
-  background-color: lightblue;
+  width: 35px;
+  background-color: none;
   position: absolute;
   left: 10px;
   top: 415px;
+  background-image: url("../images/player_right.png");
 }
 
 #container {
   height: 500px;
   width: 800px;
-  background-color: black;
+  background-color: white;
   border: 2px solid white;
   position: relative;
-  margin: 3.5% auto;
+  margin: 2.5% auto;
+  background-image: url("../images/brick_dark0.png");
+  background-repeat: repeat;
 }
 
 .floor {
@@ -27,6 +30,7 @@ body {
   background-color: red;
   position: absolute;
   top: 470px;
+  background-image: url("../images/stone_dark0.png");
 }
 
 .heading {

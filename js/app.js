@@ -1,5 +1,14 @@
 $(document).ready(function(){
 
+  var hit = new Audio('sounds/hit.mp3');
+  var dead = new Audio('sounds/YOUDIED.mp3');
+   hit.currentTime = 0.30;
+   dead.currentTime = 0.30;
+   dead.loop = false;
+
+   var music = new Audio('sounds/DespacitoVersion.mp3');
+   music.currentTime = 1.5;
+   music.volume = 0.0;
   // Initialising links
   var playerSprite = $("#playerSprite");
   var container = $("#container");
@@ -25,105 +34,461 @@ $(document).ready(function(){
   var playerSpriteAttack = true;
 
   var lastFacingLeft = false;
-
+  var levelChange = false;
   //Initialising level
 
-  // Appending step divs onto container
-  for (var i = 1; i <= 10; i++) {
-    container.append("<div id='step" + i + "' class='steps'></div>");
-  }
 
-  // First enemy
-  container.append("<div id='enemy1' class='bats'></div>");
+  var level = 1;
+  var enemyType;
+  var enemySelect;
+  var enemyPlace;
+  var secondEnemy;
+  var enemy2TopOriginal;
+  var enemy2Place;
+  var enemy2Object = {};
+
+  var enemyXDirection = "-";
+  var enemyYDirection = "+";
+
 
   // Level styling
   // Styling steps
 
-  $(".steps").css({
-    "position": "absolute",
-    "background-color": "violet",
-  });
+//////////////// LEVEL 1 /////////////////////
+// Appending step divs onto container
+for (var i = 1; i <= 10; i++) {
+  container.append("<div id='step" + i + "' class='steps'></div>");
+}
+$(".steps").css({
+  "position": "absolute",
+  'background-image': 'url("images/stepfloor.png")'
+});
 
-  $("#step1").css({
-    "left": "450px",
-    "top": "385px",
-    "height": "20px",
-    "width": "250px",
-  });
+$("#step1").css({
+  "left": "440px",
+  "top": "380px",
+  "height": "20px",
+  "width": "260px",
+});
 
-  $("#step2").css({
-    "left": "430px",
-    "top": "300px",
-    "height": "105px",
-    "width": "20px",
-  });
+$("#step2").css({
+  "left": "420px",
+  "top": "300px",
+  "height": "100px",
+  "width": "20px",
+});
 
-  $("#step3").css({
-    "left": "230px",
-    "top": "300px",
-    "height": "20px",
-    "width": "210px",
-  });
+$("#step3").css({
+  "left": "220px",
+  "top": "300px",
+  "height": "20px",
+  "width": "210px",
+});
 
-  $("#step4").css({
-    "left": "210px",
-    "top": "200px",
-    "height": "120px",
-    "width": "20px",
-  });
+$("#step4").css({
+  "left": "200px",
+  "top": "200px",
+  "height": "120px",
+  "width": "20px",
+});
 
-  $("#step5").css({
-    "left": "0px",
-    "top": "200px",
-    "height": "20px",
-    "width": "230px",
-  });
+$("#step5").css({
+  "left": "0px",
+  "top": "200px",
+  "height": "20px",
+  "width": "220px",
+});
 
-  $("#step6").css({
-    "left": "310px",
-    "top": "100px",
-    "height": "20px",
-    "width": "90px",
-  });
+$("#step6").css({
+  "left": "300px",
+  "top": "100px",
+  "height": "20px",
+  "width": "100px",
+});
 
-  $("#step7").css({
-    "left": "380px",
-    "top": "100px",
-    "height": "80px",
-    "width": "20px",
-  });
+$("#step7").css({
+  "left": "380px",
+  "top": "100px",
+  "height": "80px",
+  "width": "20px",
+});
 
-  $("#step8").css({
-    "left": "380px",
-    "top": "180px",
-    "height": "20px",
-    "width": "350px",
-  });
+$("#step8").css({
+  "left": "380px",
+  "top": "180px",
+  "height": "20px",
+  "width": "350px",
+});
 
-  $("#step9").css({
-    "left": "720px",
-    "top": "100px",
-    "height": "100px",
-    "width": "20px",
-  });
+$("#step9").css({
+  "left": "720px",
+  "top": "100px",
+  "height": "100px",
+  "width": "20px",
+});
 
-  $("#step10").css({
-    "left": "720px",
-    "top": "100px",
-    "height": "20px",
-    "width": "80px",
-  });
+$("#step10").css({
+  "left": "720px",
+  "top": "100px",
+  "height": "20px",
+  "width": "80px",
+});
 
-  // Step document positions array
-  var arrayStep = [[],[],[],[]];
-  for (var i = 0; i < 10; i++) {
+// Creating door
+container.append("<div id='door1' class='doors'></div>")
 
-    var step = $("#step" + (i+1).toString())
-    arrayStep[0].push( parseInt(step.css("top")) );
-    arrayStep[1].push( parseInt(step.css("top")) + parseInt(step.css("Height")) );
-    arrayStep[2].push( parseInt(step.css("left")) );
-    arrayStep[3].push( parseInt(step.css("left")) + parseInt(step.css("width"))) ;
+$(".doors").css({
+  "position": "absolute",
+  'background-image': 'url("images/door.png")'
+
+})
+
+$("#door1").css({
+  "left": "745px",
+  "top": "47px",
+  "height": "53px",
+  "width": "54px",
+});
+
+var door1Place = $("#door1");
+var door1Width = parseInt(door1Place.css("width"));
+var door1Height = parseInt(door1Place.css("height"));
+var door1Top = parseInt(door1Place.css("top"));
+var door1Bottom = door1Top + door1Height;
+var door1Left = parseInt(door1Place.css("left"));
+var door1Right = door1Left + door1Width;
+
+// First enemy in level 1
+container.append("<div id='enemy1'></div>");
+
+$("#enemy1").css({
+  "left": "670px",
+  "top": "120px",
+});
+
+enemyPlace = $("#enemy1");
+
+// Initial enemy generation
+generateEnemy($("#enemy1"));
+
+
+
+// Step document positions array
+var arrayStep = [[],[],[],[]];
+for (var i = 0; i < 10; i++) {
+
+  var step = $("#step" + (i+1).toString())
+  arrayStep[0].push( parseInt(step.css("top")) );
+  arrayStep[1].push( parseInt(step.css("top")) + parseInt(step.css("Height")));
+  arrayStep[2].push( parseInt(step.css("left")) );
+  arrayStep[3].push( parseInt(step.css("left")) + parseInt(step.css("width")));
+}
+
+function buildLevel(level) {
+  //Deleting everything////////////
+  if (level == 2) {
+    for (var i = 0; i < arrayStep[0].length; i++) {
+      for (var j = 0; j < 4; j++) {
+         arrayStep[j][i] = 0;
+       }
+       $("#step" + (i+1) ).remove();
+       stepBlockCheck(i);
+    }
+    $("#door1").remove();
+    door1Top = 0;
+    door1Bottom = 0;
+    door1Left = 0;
+    door1Right = 0;
+
+    // Stops enemy movement
+    clearInterval(firstEnemy);
+
+    // Rewrites enemy position for collision if statement
+    $("#enemy1").css({
+      "left": "-30px",
+      "top": "-30px",
+    });
+    findEnemy(enemy1Object);
+
+    // Removes enemy
+    $("#enemy1").remove();
+
+    // Making everything again_________________________________
+    for (var i = 1; i <= 7; i++) {
+      container.append("<div id='step" + i + "' class='steps'></div>");
+    }
+    $(".steps").css({
+      "position": "absolute",
+      'background-image': 'url("images/stepfloor.png")'
+    });
+
+    $("#step1").css({
+      "left": "620px",
+      "top": "100px",
+      "height": "20px",
+      "width": "180px",
+    });
+
+    $("#step2").css({
+      "left": "600px",
+      "top": "100px",
+      "height": "200px",
+      "width": "20px",
+    });
+
+    $("#step3").css({
+      "left": "0px",
+      "top": "200px",
+      "height": "100px",
+      "width": "40px",
+    });
+
+    $("#step4").css({
+      "left": "0px",
+      "top": "380px",
+      "height": "20px",
+      "width": "700px",
+    });
+
+    $("#step5").css({
+      "left": "180px",
+      "top": "280px",
+      "height": "20px",
+      "width": "420px",
+    });
+
+    $("#step6").css({
+      "left": "110px",
+      "top": "200px",
+      "height": "100px",
+      "width": "100px",
+    });
+
+    $("#step7").css({
+      "left": "700px",
+      "top": "280px",
+      "height": "120px",
+      "width": "40px",
+    });
+
+    levelChange = false;
+    console.log("here");
+
+    arrayStep = [[],[],[],[]];
+
+    for (var i = 0; i < 7; i++) {
+
+      var step = $("#step" + (i+1).toString())
+      arrayStep[0].push( parseInt(step.css("top")) );
+      arrayStep[1].push( parseInt(step.css("top")) + parseInt(step.css("Height")));
+      arrayStep[2].push( parseInt(step.css("left")) );
+      arrayStep[3].push( parseInt(step.css("left")) + parseInt(step.css("width")));
+    }
+
+    container.append("<div id='door1' class='doors'></div>")
+
+    $(".doors").css({
+      "position": "absolute",
+    })
+
+    $("#door1").css({
+      "left": "20px",
+      "top": "417px",
+      "height": "53px",
+      "width": "54px",
+      'background-image': 'url("images/door.png")'
+    });
+
+    door1Place = $("#door1");
+    door1Top = parseInt(door1Place.css("top"));
+    door1Bottom = door1Top + door1Height;
+    door1Left = parseInt(door1Place.css("left"));
+    door1Right = door1Left + door1Width;
+
+
+    // First enemy in level
+    container.append("<div id='enemy1'></div>");
+
+    $("#enemy1").css({
+      "left": "470px",
+      "top": "220px",
+    });
+
+    generateEnemy($("#enemy1"));
+
+    enemyTopOriginal = parseInt($("#enemy1").css("top"));
+
+    enemyPlace = $("#enemy1");
+
+    enemy1Object = {
+      place: enemyPlace,
+      bounding_divs: [$("#step6"),$("#step2")],
+      X: parseInt(enemyPlace.css("left")),
+      Y: parseInt(enemyPlace.css("top")),
+      XDirection: "-",
+      YDirection: "+",
+    }
+
+    initialiseEnemy(enemy1Object,enemyTopOriginal,1);
+
+    // Second enemy in level
+    container.append("<div id='enemy2'></div>");
+
+    $("#enemy2").css({
+      "left": "470px",
+      "top": "420px",
+    });
+
+    generateEnemy($("#enemy2"));
+
+    enemy2TopOriginal = parseInt($("#enemy2").css("top"));
+
+    enemy2Place = $("#enemy2");
+
+    enemy2Object = {
+      place: enemy2Place,
+      bounding_divs: [$("#step6"),$("#step2")],
+      X: parseInt(enemyPlace.css("left")),
+      Y: parseInt(enemyPlace.css("top")),
+      XDirection: "-",
+      YDirection: "+",
+    }
   }
+
+  initialiseEnemy(enemy2Object,enemy2TopOriginal,2);
+
+
+  if (level == 3) {
+    for (var i = 0; i < arrayStep[0].length; i++) {
+      for (var j = 0; j < 4; j++) {
+         arrayStep[j][i] = 0;
+       }
+       $("#step" + (i+1) ).remove();
+       stepBlockCheck(i);
+    }
+    $("#door1").remove();
+    door1Top = 0;
+    door1Bottom = 0;
+    door1Left = 0;
+    door1Right = 0;
+
+    // Stops enemy movement
+    clearInterval(firstEnemy);
+
+    // Rewrites enemy position for collision if statement
+    $("#enemy1").css({
+      "left": "-30px",
+      "top": "-30px",
+    });
+    findEnemy(enemy1Object);
+
+    // Removes enemy
+    $("#enemy1").remove();
+
+    // Stops enemy movement
+    clearInterval(firstEnemy);
+
+/////////////////// LEVEL 3 /////////
+    for (var i = 1; i <= 11; i++) {
+      container.append("<div id='step" + i + "' class='steps'></div>");
+    }
+    $(".steps").css({
+      "position": "absolute",
+      'background-image': 'url("images/stepfloor.png")'
+    });
+
+    $("#step1").css({
+      "left": "200px",
+      "top": "450px",
+      "height": "20px",
+      "width": "20px",
+    });
+
+    $("#step2").css({
+      "left": "220px",
+      "top": "430px",
+      "height": "40px",
+      "width": "20px",
+    });
+
+    $("#step3").css({
+      "left": "240px",
+      "top": "410px",
+      "height": "60px",
+      "width": "20px",
+    });
+
+    $("#step4").css({
+      "left": "260px",
+      "top": "390px",
+      "height": "80px",
+      "width": "20px",
+    });
+
+    $("#step5").css({
+      "left": "280px",
+      "top": "370px",
+      "height": "100px",
+      "width": "20px",
+    });
+
+    $("#step6").css({
+      "left": "300px",
+      "top": "350px",
+      "height": "120px",
+      "width": "20px",
+    });
+
+    $("#step7").css({
+      "left": "320px",
+      "top": "330px",
+      "height": "140px",
+      "width": "20px",
+    });
+
+    $("#step8").css({
+      "left": "340px",
+      "top": "310px",
+      "height": "160px",
+      "width": "20px",
+    });
+
+    $("#step9").css({
+      "left": "360px",
+      "top": "290px",
+      "height": "180px",
+      "width": "20px",
+    });
+
+    $("#step10").css({
+      "left": "380px",
+      "top": "270px",
+      "height": "200px",
+      "width": "20px",
+    });
+
+    $("#step11").css({
+      "left": "400px",
+      "top": "250px",
+      "height": "220px",
+      "width": "400px",
+    });
+    levelChange = false;
+
+    arrayStep = [[],[],[],[]];
+
+    for (var i = 0; i < 11; i++) {
+
+      var step = $("#step" + (i+1).toString())
+      arrayStep[0].push( parseInt(step.css("top")) );
+      arrayStep[1].push( parseInt(step.css("top")) + parseInt(step.css("Height")));
+      arrayStep[2].push( parseInt(step.css("left")) );
+      arrayStep[3].push( parseInt(step.css("left")) + parseInt(step.css("width")));
+    }
+
+  }
+  console.log(level);
+}
 
   // Player
   var playerWidth = parseInt(playerSprite.css("width"));
@@ -141,6 +506,8 @@ $(document).ready(function(){
       heart2.attr("src","images/heart-empty.png");
       heart3.attr("src","images/heart-empty.png");
       displayGameOver(playerSpriteY);
+      music.pause();
+
     }
 
     if (playerHealth == 1) {
@@ -186,7 +553,7 @@ $(document).ready(function(){
       if (playerSpriteY == initialY) {
         playerSpriteYVelocity = -10;
         container.append("<div id='gameOver'></div>");
-        $("#gameOver").append("<div id='gameOverText'>YOU DIED</div>");
+        $("#gameOver").append("<div id='gameOverText'></div>");
 
       }
 
@@ -199,27 +566,28 @@ $(document).ready(function(){
 
       movePlayer();
 
-      if (playerSpriteY > initialY + 1000 ) {
+      if (playerSpriteY > initialY + 1500 ) {
+        dead.play();
         $("#gameOver").css({
           "position": "absolute",
           "display": "flex",
           "justify-content": "center",
           "align-items": "center",
-          "height": "100%",
+          "height": "30%",
+          "margin": "170px 0%",
           "width": "100%",
-          "background-color": "black",
+          "background-image": "linear-gradient( rgba(0,0,0,0), rgba(0,0,0,0.75), rgba(0,0,0,0.90), rgba(0,0,0,0.95), rgba(0,0,0,0.95), rgba(0,0,0,0.95), rgba(0,0,0,0.95) , rgba(0,0,0,0.90), rgba(0,0,0,0.75), rgba(0,0,0,0)",
           "opacity": opac,
         });
+        $("#gameOverText").html("YOU DIED")
 
         $("#gameOverText").css({
           "color": "red",
           "font-size": "69px",
           "font-family": "Times New Roman",
           "opacity": opac,
-
         });
-
-        opac += 0.01;
+        opac += 0.005;
       }
     }, 10);
 
@@ -238,10 +606,11 @@ $(document).ready(function(){
         "height": "30px",
         "width": "8px",
         "top": playerSpriteY + "px",
-        "left": playerSpriteX + playerWidth - 5 + "px",
-        "background-color": "blue",
+        "left": playerSpriteX + playerWidth + "px",
         "transform": "rotate(45deg)",
         "transform-origin": "50% 90%",
+        "content": " attr('../images/buster_sword.jpg')",
+        'background-image': 'url("images/buster_sword_right.jpg")'
       });
 
       // correction if they were facing the other direction (rotation is set to the other side)
@@ -254,7 +623,7 @@ $(document).ready(function(){
         $("#swordAttackRight").css({
           "transform": "rotate("+ rotation + "deg)",
           "top": playerSpriteY + "px",
-          "left": playerSpriteX + playerWidth - 5 + "px",
+          "left": playerSpriteX + playerWidth + "px",
         })
 
         // finding weapon edges for collision
@@ -285,9 +654,9 @@ $(document).ready(function(){
         "width": "8px",
         "top": playerSpriteY + "px",
         "left": playerSpriteX + "px",
-        "background-color": "blue",
         "transform": "rotate(-45deg)",
         "transform-origin": "50% 90%",
+        'background-image': 'url("images/buster_sword_left.jpg")'
       });
 
       // correction if they were facing the other direction (rotation is set to the other side)
@@ -323,8 +692,8 @@ $(document).ready(function(){
   }
 
   function findWeapon(weaponPlace) {
-    weaponLeft = playerSpriteX - 27.5;
-    weaponRight = playerSpriteX + playerWidth + 27.5;
+    weaponLeft = playerSpriteX - 22.5;
+    weaponRight = playerSpriteX + playerWidth + 22.5;
   }
 
   function resetWeapon(weaponPlace) {
@@ -333,22 +702,63 @@ $(document).ready(function(){
   }
 
   // Enemies
-  $("#enemy1").css({
-    "left": "670px",
-    "top": "120px",
-    "height": "20px",
-    "width": "20px",
-  });
-  var enemy1 = $("#enemy1");
+  function generateEnemy(enemylocation) {
+    enemySelect = Math.floor((Math.random() * 2) + 1);
+    if (enemySelect == 1) {
+      enemyType = "bat";
 
-  var enemyXDirection = "-";
-  var enemyYDirection = "+";
+      enemylocation.css({
+        "position": "absolute",
+        "height": "20px",
+        "width": "20px",
+        'background-image': 'url("images/bat_left.png")'
+      });
+    }
+
+    if (enemySelect == 2) {
+      enemyType = "zombie";
+      enemylocation.css({
+        "position": "absolute",
+        "top": parseInt($("#enemy1").css("top")) + 20 + "px",
+        "height": "40px",
+        "width": "20px",
+        'background-image': 'url("images/zombie_left.png")'
+      });
+    }
+  }
+
+// Initial enemy function
+function initialiseEnemy(enemies,enemyTopOrig,number) {
+
+  if (number == 1) {
+    if (enemyType == "bat") {
+
+      firstEnemy = setInterval(function(){batMotion(enemies, enemyTopOrig)},10);
+    }
+
+    if (enemyType == "zombie") {
+
+      firstEnemy = setInterval(function(){zombieMotion(enemies)},100);
+    }
+  }
+  if (number == 2) {
+    if (enemyType == "bat") {
+
+      secondEnemy = setInterval(function(){batMotion(enemies, enemyTopOrig)},10);
+    }
+
+    if (enemyType == "zombie") {
+
+      secondEnemy = setInterval(function(){zombieMotion(enemies)},100);
+    }
+  }
+}
 
   var enemy1Object = {
-    place: $("#enemy1"),
+    place: enemyPlace,
     bounding_divs: [$("#step7"),$("#step9")],
-    X: parseInt(enemy1.css("left")),
-    Y: parseInt(enemy1.css("top")),
+    X: parseInt(enemyPlace.css("left")),
+    Y: parseInt(enemyPlace.css("top")),
     XDirection: "-",
     YDirection: "+",
   }
@@ -376,20 +786,21 @@ $(document).ready(function(){
   }
 
   // bats
-  $(".bats").css({
-    "position": "absolute",
-    "background-color": "red",
-  })
-
-  function batMotion(enemyObject){
+  function batMotion(enemyObject, enemyTopOrig){
 
     findEnemy(enemyObject);
 
-    if (enemyLeft < parseInt(enemyObject.bounding_divs[0].css("left")) + parseInt($("#step7").css("width")) + 20) {
+    if (enemyLeft < parseInt(enemyObject.bounding_divs[0].css("left")) + parseInt(enemyObject.bounding_divs[0].css("width")) + 20) {
       enemyObject.XDirection = "+";
+      enemyObject.place.css({
+        'background-image': 'url("images/bat_right.png")'
+      });
     }
     if (enemyRight > parseInt(enemyObject.bounding_divs[1].css("left")) - 20) {
       enemyObject.XDirection = "-";
+      enemyObject.place.css({
+        'background-image': 'url("images/bat_left.png")'
+      });
     }
 
     if (enemyObject.XDirection == "+") {
@@ -398,10 +809,10 @@ $(document).ready(function(){
       enemyObject.X -= 1;
     }
 
-    if (enemyTop > enemyTopOriginal + 15) {
+    if (enemyTop > enemyTopOrig + 15) {
       enemyObject.YDirection = "-";
     }
-    if (enemyTop < enemyTopOriginal - 15) {
+    if (enemyTop < enemyTopOrig - 15) {
       enemyObject.YDirection = "+";
     }
 
@@ -422,11 +833,17 @@ $(document).ready(function(){
 
     findEnemy(enemyObject);
 
-    if (enemyLeft < parseInt(enemyObject.bounding_divs[0].css("left")) + parseInt($("#step7").css("width")) + 20) {
+    if (enemyLeft < parseInt(enemyObject.bounding_divs[0].css("left")) + parseInt(enemyObject.bounding_divs[0].css("width")) + 20) {
       enemyObject.XDirection = "+";
+      enemyObject.place.css({
+        'background-image': 'url("images/zombie_right.png")'
+      });
     }
     if (enemyRight > parseInt(enemyObject.bounding_divs[1].css("left")) - 20) {
       enemyObject.XDirection = "-";
+      enemyObject.place.css({
+        'background-image': 'url("images/zombie_left.png")'
+      });
     }
 
     if (enemyObject.XDirection == "+") {
@@ -478,6 +895,8 @@ $(document).ready(function(){
       playerSpriteX = enemyLeft - playerWidth;
       playerHealth--;
       healthBar();
+      hit.play();
+      hit.currentTime = 0.30;
     }
 
     // Collision with right of enemy
@@ -491,6 +910,9 @@ $(document).ready(function(){
       playerSpriteX = enemyRight;
       playerHealth--;
       healthBar();
+      hit.play();
+      hit.currentTime = 0.30;
+
     }
 
     // Collision with left of enemy
@@ -547,6 +969,7 @@ $(document).ready(function(){
 
        clearInterval(interval);
        clearInterval(firstEnemy);
+       music.pause();
 
        // Display pause menu
 
@@ -558,17 +981,8 @@ $(document).ready(function(){
        // Load game frame-wise
        interval = setInterval(loop, 10);
 
-       var enemyType = "bat";
-
-       if (enemyType == "bat") {
-         firstEnemy = setInterval(function(){batMotion(enemy1Object)},10);
-
-       }
-
-       if (enemyType == "zombie") {
-         firstEnemy = setInterval(function(){zombieMotion(enemy1Object)},100);
-
-       }
+       initialiseEnemy(enemy1Object,enemyTopOriginal,1);
+       setTimeout(function(){ music.play()}, 1);
      }
    })
 
@@ -583,6 +997,7 @@ $(document).ready(function(){
        case 37:
        playerSpriteLeft = keyState;
        lastFacingLeft = true;
+
        break;
 
        // Up key
@@ -601,28 +1016,42 @@ $(document).ready(function(){
        playerSpriteSpace = keyState;
        break
 
-
      }
    }
 
+function changeDirection() {
+  if (lastFacingLeft == true) {
+           $('#playerSprite').css({'background-image': 'url("images/player_left.png")'})
+  } else if (lastFacingLeft == false) {
+       $('#playerSprite').css({'background-image': 'url("images/player_right.png")'})
+  }
+}
+
    function loop(){
+
+     // Door collisions
+     doorCheck();
 
      if (playerSpriteUp && playerSpriteJump == false) {
 
        playerSpriteYVelocity = -10;
        playerSpriteJump = true;
 
+
      }
 
      if (playerSpriteLeft) {
 
        playerSpriteXVelocity -= 0.4;
+       changeDirection();
 
      }
 
      if (playerSpriteRight) {
 
        playerSpriteXVelocity += 0.4;
+       changeDirection();
+
      }
 
      playerSpriteYVelocity += .4;
@@ -653,7 +1082,36 @@ $(document).ready(function(){
 
      }
 
-   }
+    }
+
+    function doorCheck() {
+      // Collision with left of door
+
+      if (playerSpriteUp
+        && playerSpriteX + playerWidth > door1Left
+        && playerSpriteX + playerWidth < door1Left + door1Width
+        && playerSpriteY + playerHeight > door1Top
+        && playerSpriteY < door1Bottom) {
+          level++
+          levelChange = true;
+          if (levelChange) {
+            buildLevel(level);
+          }
+        }
+
+        // Collision with right of door
+        if (playerSpriteUp
+          && playerSpriteX < door1Right
+          && playerSpriteX > door1Right - door1Width
+          && playerSpriteY + playerHeight > door1Top
+          && playerSpriteY < door1Bottom) {
+            level++
+            levelChange = true;
+            if (levelChange) {
+              buildLevel(level);
+            }
+        }
+      }
 
   // Movement of the playerSprite
   function movePlayer(){
@@ -736,9 +1194,7 @@ $(document).ready(function(){
         }
       }
 
-
   document.addEventListener('keydown', keyListener);
   document.addEventListener('keyup', keyListener);
-
 
 });
