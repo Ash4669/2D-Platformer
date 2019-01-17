@@ -8,7 +8,7 @@ $(document).ready(function(){
 
    var music = new Audio('sounds/DespacitoVersion.mp3');
    music.currentTime = 1.5;
-   music.volume = 0.0;
+   music.volume = 0.3;
   // Initialising links
   var playerSprite = $("#playerSprite");
   var container = $("#container");
@@ -42,6 +42,7 @@ $(document).ready(function(){
   var enemyType;
   var enemySelect;
   var enemyPlace;
+  var firstEnemy;
   var secondEnemy;
   var enemy2TopOriginal;
   var enemy2Place;
@@ -327,6 +328,12 @@ function buildLevel(level) {
       Y: parseInt(enemyPlace.css("top")),
       XDirection: "-",
       YDirection: "+",
+      enemyTop: parseInt(enemyPlace.css("top")),
+      enemyBottom: parseInt(enemyPlace.css("top")) + parseInt(enemyPlace.css("height")),
+      enemyLeft: parseInt(enemyPlace.css("left")),
+      enemyRight: parseInt(enemyPlace.css("left")) + parseInt(enemyPlace.css("width")),
+      enemyWidth: parseInt(enemyPlace.css("width")),
+      inter: firstEnemy,
     }
 
     initialiseEnemy(enemy1Object,enemyTopOriginal,1);
@@ -336,7 +343,7 @@ function buildLevel(level) {
 
     $("#enemy2").css({
       "left": "470px",
-      "top": "420px",
+      "top": "410px",
     });
 
     generateEnemy($("#enemy2"));
@@ -348,10 +355,16 @@ function buildLevel(level) {
     enemy2Object = {
       place: enemy2Place,
       bounding_divs: [$("#step6"),$("#step2")],
-      X: parseInt(enemyPlace.css("left")),
-      Y: parseInt(enemyPlace.css("top")),
+      X: parseInt(enemy2Place.css("left")),
+      Y: parseInt(enemy2Place.css("top")),
       XDirection: "-",
       YDirection: "+",
+      enemyTop: parseInt(enemy2Place.css("top")),
+      enemyBottom: parseInt(enemy2Place.css("top")) + parseInt(enemy2Place.css("height")),
+      enemyLeft: parseInt(enemy2Place.css("left")),
+      enemyRight: parseInt(enemy2Place.css("left")) + parseInt(enemy2Place.css("width")),
+      enemyWidth: parseInt(enemy2Place.css("width")),
+      inter: secondEnemy,
     }
   }
 
@@ -386,7 +399,17 @@ function buildLevel(level) {
     $("#enemy1").remove();
 
     // Stops enemy movement
-    clearInterval(firstEnemy);
+    clearInterval(secondEnemy);
+
+    // Rewrites enemy position for collision if statement
+    $("#enemy2").css({
+      "left": "-30px",
+      "top": "-30px",
+    });
+    findEnemy(enemy2Object);
+
+    // Removes enemy
+    $("#enemy2").remove();
 
 /////////////////// LEVEL 3 /////////
     for (var i = 1; i <= 11; i++) {
@@ -702,12 +725,12 @@ function buildLevel(level) {
   }
 
   // Enemies
-  function generateEnemy(enemylocation) {
+  function generateEnemy(enemyPlace) {
     enemySelect = Math.floor((Math.random() * 2) + 1);
     if (enemySelect == 1) {
       enemyType = "bat";
 
-      enemylocation.css({
+      enemyPlace.css({
         "position": "absolute",
         "height": "20px",
         "width": "20px",
@@ -717,9 +740,9 @@ function buildLevel(level) {
 
     if (enemySelect == 2) {
       enemyType = "zombie";
-      enemylocation.css({
+      enemyPlace.css({
         "position": "absolute",
-        "top": parseInt($("#enemy1").css("top")) + 20 + "px",
+        "top": parseInt(enemyPlace.css("top")) + 20 + "px",
         "height": "40px",
         "width": "20px",
         'background-image': 'url("images/zombie_left.png")'
@@ -728,28 +751,28 @@ function buildLevel(level) {
   }
 
 // Initial enemy function
-function initialiseEnemy(enemies,enemyTopOrig,number) {
+function initialiseEnemy(enemyObject,enemyTopOrig,number) {
 
   if (number == 1) {
     if (enemyType == "bat") {
 
-      firstEnemy = setInterval(function(){batMotion(enemies, enemyTopOrig)},10);
+      enemyObject.inter = setInterval(function(){batMotion(enemyObject, enemyTopOrig)},10);
     }
 
     if (enemyType == "zombie") {
 
-      firstEnemy = setInterval(function(){zombieMotion(enemies)},100);
+      enemyObject.inter = setInterval(function(){zombieMotion(enemyObject)},100);
     }
   }
   if (number == 2) {
     if (enemyType == "bat") {
 
-      secondEnemy = setInterval(function(){batMotion(enemies, enemyTopOrig)},10);
+      enemyObject.inter = setInterval(function(){batMotion(enemyObject, enemyTopOrig)},10);
     }
 
     if (enemyType == "zombie") {
 
-      secondEnemy = setInterval(function(){zombieMotion(enemies)},100);
+      enemyObject.inter = setInterval(function(){zombieMotion(enemyObject)},100);
     }
   }
 }
@@ -761,6 +784,12 @@ function initialiseEnemy(enemies,enemyTopOrig,number) {
     Y: parseInt(enemyPlace.css("top")),
     XDirection: "-",
     YDirection: "+",
+    enemyTop: parseInt(enemyPlace.css("top")),
+    enemyBottom: parseInt(enemyPlace.css("top")) + parseInt(enemyPlace.css("height")),
+    enemyLeft: parseInt(enemyPlace.css("left")),
+    enemyRight: parseInt(enemyPlace.css("left")) + parseInt(enemyPlace.css("width")),
+    enemyWidth: parseInt(enemyPlace.css("width")),
+    inter: firstEnemy,
   }
 
   var enemyTopOriginal = parseInt(enemy1Object.place.css("top"));
@@ -769,13 +798,13 @@ function initialiseEnemy(enemies,enemyTopOrig,number) {
   var enemyLeft;
   var enemyRight;
   var enemyWidth = parseInt(enemy1Object.place.css("width"));
-  var enemyHeight = parseInt(enemy1Object.place.css("height"));
+
 
   function findEnemy(enemyObject) {
-    enemyTop = parseInt(enemyObject.place.css("top"));
-    enemyBottom = enemyTop + parseInt(enemyObject.place.css("height"));
-    enemyLeft = parseInt(enemyObject.place.css("left"));
-    enemyRight = enemyLeft + parseInt(enemyObject.place.css("width"));
+    enemyObject.enemyTop = parseInt(enemyObject.place.css("top"))
+    enemyObject.enemyBottom = enemyObject.enemyTop + parseInt(enemyObject.place.css("height"));
+    enemyObject.enemyLeft = parseInt(enemyObject.place.css("left"));
+    enemyObject.enemyRight = enemyObject.enemyLeft + parseInt(enemyObject.place.css("width"));
   }
 
   function moveEnemy(enemyObject) {
@@ -790,13 +819,14 @@ function initialiseEnemy(enemies,enemyTopOrig,number) {
 
     findEnemy(enemyObject);
 
-    if (enemyLeft < parseInt(enemyObject.bounding_divs[0].css("left")) + parseInt(enemyObject.bounding_divs[0].css("width")) + 20) {
+
+    if (enemyObject.enemyLeft < parseInt(enemyObject.bounding_divs[0].css("left")) + parseInt(enemyObject.bounding_divs[0].css("width")) + 20) {
       enemyObject.XDirection = "+";
       enemyObject.place.css({
         'background-image': 'url("images/bat_right.png")'
       });
     }
-    if (enemyRight > parseInt(enemyObject.bounding_divs[1].css("left")) - 20) {
+    if (enemyObject.enemyRight > parseInt(enemyObject.bounding_divs[1].css("left")) - 20) {
       enemyObject.XDirection = "-";
       enemyObject.place.css({
         'background-image': 'url("images/bat_left.png")'
@@ -809,10 +839,10 @@ function initialiseEnemy(enemies,enemyTopOrig,number) {
       enemyObject.X -= 1;
     }
 
-    if (enemyTop > enemyTopOrig + 15) {
+    if (enemyObject.enemyTop > enemyTopOrig + 15) {
       enemyObject.YDirection = "-";
     }
-    if (enemyTop < enemyTopOrig - 15) {
+    if (enemyObject.enemyTop < enemyTopOrig - 15) {
       enemyObject.YDirection = "+";
     }
 
@@ -822,6 +852,7 @@ function initialiseEnemy(enemies,enemyTopOrig,number) {
       enemyObject.Y -= 0.45;
     }
 
+    enemycollisions(enemyObject);
     moveEnemy(enemyObject);
   }
 
@@ -833,13 +864,13 @@ function initialiseEnemy(enemies,enemyTopOrig,number) {
 
     findEnemy(enemyObject);
 
-    if (enemyLeft < parseInt(enemyObject.bounding_divs[0].css("left")) + parseInt(enemyObject.bounding_divs[0].css("width")) + 20) {
+    if (enemyObject.enemyLeft < parseInt(enemyObject.bounding_divs[0].css("left")) + parseInt(enemyObject.bounding_divs[0].css("width")) + 20) {
       enemyObject.XDirection = "+";
       enemyObject.place.css({
         'background-image': 'url("images/zombie_right.png")'
       });
     }
-    if (enemyRight > parseInt(enemyObject.bounding_divs[1].css("left")) - 20) {
+    if (enemyObject.enemyRight > parseInt(enemyObject.bounding_divs[1].css("left")) - 20) {
       enemyObject.XDirection = "-";
       enemyObject.place.css({
         'background-image': 'url("images/zombie_left.png")'
@@ -861,6 +892,7 @@ function initialiseEnemy(enemies,enemyTopOrig,number) {
         }
       }
       enemyObject.X += zombieLeftVelocity;
+      enemycollisions(enemyObject);
       moveEnemy(enemyObject);
     }
     if (enemyObject.XDirection == "-") {
@@ -878,21 +910,22 @@ function initialiseEnemy(enemies,enemyTopOrig,number) {
         }
       }
       enemyObject.X += zombieVelocity;
+      enemycollisions(enemyObject);
       moveEnemy(enemyObject);
     }
   }
 
-  function enemycollisions() {
+  function enemycollisions(enemyObject) {
 
     // Collision with left of enemy
-    if (playerSpriteX + playerWidth > enemyLeft
-      && playerSpriteX + playerWidth < enemyLeft + enemyWidth/2
-      && playerSpriteY + playerHeight > enemyTop
-      && playerSpriteY < enemyBottom
+    if (playerSpriteX + playerWidth > enemyObject.enemyLeft
+      && playerSpriteX + playerWidth < enemyObject.enemyLeft + enemyObject.enemyWidth/2
+      && playerSpriteY + playerHeight > enemyObject.enemyTop
+      && playerSpriteY < enemyObject.enemyBottom
     ) {
       playerSpriteXVelocity = -5;
       playerSpriteYVelocity = -4;
-      playerSpriteX = enemyLeft - playerWidth;
+      playerSpriteX = enemyObject.enemyLeft - playerWidth;
       playerHealth--;
       healthBar();
       hit.play();
@@ -900,14 +933,14 @@ function initialiseEnemy(enemies,enemyTopOrig,number) {
     }
 
     // Collision with right of enemy
-    if (playerSpriteX < enemyRight
-      && playerSpriteX > enemyRight - enemyWidth
-      && playerSpriteY + playerHeight> enemyTop
-      && playerSpriteY < enemyBottom
+    if (playerSpriteX < enemyObject.enemyRight
+      && playerSpriteX > enemyObject.enemyRight - enemyObject.enemyWidth
+      && playerSpriteY + playerHeight> enemyObject.enemyTop
+      && playerSpriteY < enemyObject.enemyBottom
     ) {
       playerSpriteXVelocity = +5;
       playerSpriteYVelocity = -4;
-      playerSpriteX = enemyRight;
+      playerSpriteX = enemyObject.enemyRight;
       playerHealth--;
       healthBar();
       hit.play();
@@ -915,46 +948,46 @@ function initialiseEnemy(enemies,enemyTopOrig,number) {
 
     }
 
-    // Collision with left of enemy
-    if ( weaponRight > enemyLeft
-      && weaponRight < enemyRight
-      && playerSpriteY + playerHeight > enemyTop
-      && playerSpriteY < enemyBottom
+    // Collision with left of weapon
+    if ( weaponRight > enemyObject.enemyLeft
+      && weaponRight < enemyObject.enemyRight
+      && playerSpriteY + playerHeight > enemyObject.enemyTop
+      && playerSpriteY < enemyObject.enemyBottom
     ) {
-      // Stops enemy movement
-      clearInterval(firstEnemy);
 
       // Rewrites enemy position for collision if statement
-      $("#enemy1").css({
-        "left": "0px",
-        "top": "0px",
+      enemyObject.place.css({
+        "left": "-30px",
+        "top": "-30px",
       });
-      findEnemy(enemy1Object);
+      findEnemy(enemyObject);
 
       // Removes enemy
-      $("#enemy1").remove();
+      enemyObject.place.remove();
 
+      // Stops enemy movement
+      clearInterval(enemyObject.inter);
     }
 
-    // Collision with right of enemy
-    if (weaponLeft < enemyRight
-      &&  weaponLeft > enemyLeft
-      && playerSpriteY + playerHeight > enemyTop
-      && playerSpriteY < enemyBottom
+    // Collision with right of weapon
+    if (weaponLeft < enemyObject.enemyRight
+      &&  weaponLeft > enemyObject.enemyLeft
+      && playerSpriteY + playerHeight > enemyObject.enemyTop
+      && playerSpriteY < enemyObject.enemyBottom
     ) {
 
-      // Stops enemy movement
-      clearInterval(firstEnemy);
-
       // Rewrites enemy position for collision if statement
-      $("#enemy1").css({
-        "left": "0px",
-        "top": "0px",
+      enemyObject.place.css({
+        "left": "-30px",
+        "top": "-30px",
       });
-      findEnemy(enemy1Object);
+      findEnemy(enemyObject);
 
       // Removes enemy
-      $("#enemy1").remove();
+      enemyObject.place.remove();
+
+      // Stops enemy movement
+      clearInterval(enemyObject.inter);
     }
 
   }
@@ -969,6 +1002,7 @@ function initialiseEnemy(enemies,enemyTopOrig,number) {
 
        clearInterval(interval);
        clearInterval(firstEnemy);
+       clearInterval(secondEnemy);
        music.pause();
 
        // Display pause menu
@@ -983,6 +1017,7 @@ function initialiseEnemy(enemies,enemyTopOrig,number) {
 
        initialiseEnemy(enemy1Object,enemyTopOriginal,1);
        setTimeout(function(){ music.play()}, 1);
+console.log(firstEnemy);
      }
    })
 
@@ -1072,7 +1107,6 @@ function changeDirection() {
        stepBlockCheck(i);
      }
 
-     enemycollisions();
 
      movePlayer();
 
